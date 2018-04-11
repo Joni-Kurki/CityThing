@@ -26,8 +26,6 @@ public class CityControllerScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
          livingHouses.ForEach((h => h.GetComponent<LivingHouseControllerScript>().SetElectricity(toggleLights)));
-
-
 	}
 
     void InstantiateLivingHouses() {

@@ -8,4 +8,14 @@ public class Enums  {
         couple = 1,
         family = 2,
     }
+
+    public class Building {
+        public enum Type {
+            bar = 0,
+            groceryStore = 1,
+            cityhall = 2,
+            powerPlant = 3,
+            church = 4,
+        }
+    }
 }
