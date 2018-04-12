@@ -5,21 +5,21 @@ using UnityEngine;
 [RequireComponent(typeof(MeshRenderer), typeof(MeshFilter))]
 public class RoadMeshScript : MonoBehaviour {
 
-    public int xSize;
-    public int ySize;
-
     public Vector2[] roadLocationsWaypoints;
     public List<Vector2> roadTiles;
 
     private Mesh mesh;
-    private Vector3[] verticies;
+    public Vector3[] verts;
+    public int[] tris;
+
+    private Vector2[] uvs;
+
+    public Material mat;
 
     // Use this for initialization
     void Start () {
         roadTiles = new List<Vector2>();
         GeneratePath();
-
-        Generate();
     }
 	
 	// Update is called once per frame
@@ -46,7 +46,22 @@ public class RoadMeshScript : MonoBehaviour {
             }
         }
 
-        VisualizeRoadGizmos();
+        int numberOfVerts = CalculateVerts(roadTiles.Count);
+
+        verts = GenerateVertsFromWaypoints(numberOfVerts, roadTiles);
+
+        //tris = GenerateTris(roadTiles.Count);
+
+        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
+        mesh.vertices = verts;
+        mesh.uv = uvs;
+        mesh.triangles = tris;
+
+        mesh.RecalculateNormals();
+        GetComponent<MeshRenderer>().material = mat;
+
+        //VisualizeRoadWaypoints();
+        //VisualizeRoadVerts(verts);
     }
 
     int CalculateHowManyStepsAreNeeded(Vector2 start, Vector2 end) {
@@ -82,42 +97,66 @@ public class RoadMeshScript : MonoBehaviour {
         }
     }
 
-    void VisualizeRoadGizmos() {
+    void VisualizeRoadWaypoints() {
         for(int i=0; i < roadTiles.Count - 1; i++) {
-            Debug.DrawLine(new Vector3(roadTiles[i].x - .25f, 1, roadTiles[i].y - .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.red, 30);
-            Debug.DrawLine(new Vector3(roadTiles[i].x + .25f, 1, roadTiles[i].y + .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.red, 30);
+            Debug.DrawLine(new Vector3(roadTiles[i].x - .25f, 1, roadTiles[i].y - .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
+            Debug.DrawLine(new Vector3(roadTiles[i].x + .25f, 1, roadTiles[i].y + .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
         }
     }
 
-    void Generate() {
-        GetComponent<MeshFilter>().mesh = mesh = new Mesh();
-        mesh.name = "Procedural grid";
+    void VisualizeRoadVerts(Vector3 [] verts) {
+        float visualOffset = 0.1f;
 
-        verticies = new Vector3[(xSize + 1) * (ySize + 1)];
-        Vector2[] uv = new Vector2[verticies.Length];
+        for (int i = 0; i < verts.Length; i++) {
+            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset), 
+                new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset), 
+                new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset), 
+                new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset), 
+                new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
+        }
+    }
 
-        for (int i = 0, y = 0; y <= ySize; y++) {
-            for (int x = 0; x <= xSize; x++, i++) {
-                verticies[i] = new Vector3(x, y);
-                uv[i] = new Vector2((float)x / xSize, (float)y / ySize);
-            }
+    int CalculateVerts(int numberOfWaypoints) {
+        return numberOfWaypoints * 4;
+    }
+
+    int CalculateTris(int numberOfWaypoints) {
+        return numberOfWaypoints * 6;
+    }
+
+    Vector3[] GenerateVertsFromWaypoints(int numbofverts, List<Vector2> waypoints) {
+        Debug.Log("Starting mesh creation. Verts : " + numbofverts + " waypoints: " + waypoints.Count);
+
+        float vertOffSet = .5f;
+
+        Vector2[] uvs = new Vector2[waypoints.Count * 4];
+
+        int v = 0;
+        int t = 0;
+
+        verts = new Vector3[waypoints.Count * 4];
+        tris = new int[waypoints.Count * 6];
+
+        var index = 0;
+        for(int i = 0; i < waypoints.Count; i++) {
+            verts[index]    = new Vector3(waypoints[i].x - vertOffSet, 0, waypoints[i].y + vertOffSet);
+            verts[index+1]  = new Vector3(waypoints[i].x - vertOffSet, 0, waypoints[i].y - vertOffSet);
+            verts[index+2]  = new Vector3(waypoints[i].x + vertOffSet, 0, waypoints[i].y + vertOffSet);
+            verts[index+3]  = new Vector3(waypoints[i].x + vertOffSet, 0, waypoints[i].y - vertOffSet);
+            //uvs[index] = uvs[index + 1] = uvs[index + 2] = uvs[index + 3] = new Vector2((float)waypoints[i].x, waypoints[i].y);
+
+            tris[t] = index;
+            tris[t+1] = tris[t+4] = 2 + index;
+            tris[t+2] = tris[t+3] = 1 + index;
+            tris[t+5] = 3 + index;
+
+            index += 4;
+            t += 6;
         }
 
-        mesh.vertices = verticies;
-        mesh.uv = uv;
-
-        int[] triangles = new int[xSize * ySize * 6];
-        // ti = triangleIndex , vi = vertexIndex
-        for (int ti = 0, vi = 0, y = 0; y < ySize; y++, vi++) {
-            for (int x = 0; x < xSize; x++, ti += 6, vi++) {
-                triangles[ti] = vi;
-                triangles[ti + 3] = triangles[ti + 2] = vi + 1;
-                triangles[ti + 4] = triangles[ti + 1] = vi + xSize + 1;
-                triangles[ti + 5] = vi + xSize + 2;
-            }
-        }
-
-        mesh.triangles = triangles;
-        mesh.RecalculateNormals();
+        return verts;
     }
 }
