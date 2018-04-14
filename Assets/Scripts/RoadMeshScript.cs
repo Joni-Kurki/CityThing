@@ -16,21 +16,24 @@ public class RoadMeshScript : MonoBehaviour {
 
     public Material mat;
 
+    bool regenerateMesh = true;
+
     // Use this for initialization
     void Start () {
         roadTiles = new List<Vector2>();
-        GeneratePath();
+        //GenerateWaypointsAndMesh();
     }
 	
-	// Update is called once per frame
-	void Update () {
-		
-	}
+    public void SetWayPoints(Vector2[] waypoints) {
+        roadLocationsWaypoints = waypoints;
+        regenerateMesh = true;
+    }
 
-    // Generate each tile for waypoint to waypoint
-    void GeneratePath() {
+    // Generate each tile for waypoint to waypoint. Also create verts, tris and mesh.
+    void GenerateWaypointsAndMesh() {
         var index = 0;
     
+        // Add waypoints to list
         for (int i = 0; i < roadLocationsWaypoints.Length - 1; i++) {
             if (i == 0) {
                 roadTiles.Add(roadLocationsWaypoints[i]);
@@ -45,25 +48,26 @@ public class RoadMeshScript : MonoBehaviour {
                 index++;
             }
         }
+        // Create verts and tris
+        GenerateVertsAndTrisFromWaypoints();
 
-        int numberOfVerts = CalculateVerts(roadTiles.Count);
-
-        verts = GenerateVertsFromWaypoints(numberOfVerts, roadTiles);
-
-        //tris = GenerateTris(roadTiles.Count);
-
+        // Set verts, tris to mesh
         GetComponent<MeshFilter>().mesh = mesh = new Mesh();
         mesh.vertices = verts;
         mesh.uv = uvs;
         mesh.triangles = tris;
 
         mesh.RecalculateNormals();
+        // Set material
         GetComponent<MeshRenderer>().material = mat;
 
         //VisualizeRoadWaypoints();
         //VisualizeRoadVerts(verts);
+
+        regenerateMesh = false;
     }
 
+    // Calculate number of steps needed
     int CalculateHowManyStepsAreNeeded(Vector2 start, Vector2 end) {
         var x = 0;
         var y = 0;
@@ -84,6 +88,7 @@ public class RoadMeshScript : MonoBehaviour {
         return x + y;
     }
 
+    // Gets the next step for waypoint creating
     Vector2 GetNextStep(Vector2 currentLocation, Vector2 endLocation) {
         // Move x first
         if((int)currentLocation.x != (int)endLocation.x) {
@@ -97,55 +102,33 @@ public class RoadMeshScript : MonoBehaviour {
         }
     }
 
-    void VisualizeRoadWaypoints() {
-        for(int i=0; i < roadTiles.Count - 1; i++) {
-            Debug.DrawLine(new Vector3(roadTiles[i].x - .25f, 1, roadTiles[i].y - .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
-            Debug.DrawLine(new Vector3(roadTiles[i].x + .25f, 1, roadTiles[i].y + .25f), new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
-        }
+    int CalculateVerts() {
+        return roadTiles.Count * 4;
     }
 
-    void VisualizeRoadVerts(Vector3 [] verts) {
-        float visualOffset = 0.1f;
-
-        for (int i = 0; i < verts.Length; i++) {
-            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset), 
-                new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
-            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset), 
-                new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
-            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset), 
-                new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
-            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset), 
-                new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
-        }
+    int CalculateTris() {
+        return roadTiles.Count * 6;
     }
 
-    int CalculateVerts(int numberOfWaypoints) {
-        return numberOfWaypoints * 4;
-    }
-
-    int CalculateTris(int numberOfWaypoints) {
-        return numberOfWaypoints * 6;
-    }
-
-    Vector3[] GenerateVertsFromWaypoints(int numbofverts, List<Vector2> waypoints) {
-        Debug.Log("Starting mesh creation. Verts : " + numbofverts + " waypoints: " + waypoints.Count);
+    // Generates verticies and triangles from waypoints.
+    void GenerateVertsAndTrisFromWaypoints() {
 
         float vertOffSet = .5f;
 
-        Vector2[] uvs = new Vector2[waypoints.Count * 4];
+        Vector2[] uvs = new Vector2[CalculateVerts()];
 
-        int v = 0;
         int t = 0;
 
-        verts = new Vector3[waypoints.Count * 4];
-        tris = new int[waypoints.Count * 6];
+        verts = new Vector3[CalculateVerts()];
+        tris = new int[CalculateTris()];
 
         var index = 0;
-        for(int i = 0; i < waypoints.Count; i++) {
-            verts[index]    = new Vector3(waypoints[i].x - vertOffSet, 0, waypoints[i].y + vertOffSet);
-            verts[index+1]  = new Vector3(waypoints[i].x - vertOffSet, 0, waypoints[i].y - vertOffSet);
-            verts[index+2]  = new Vector3(waypoints[i].x + vertOffSet, 0, waypoints[i].y + vertOffSet);
-            verts[index+3]  = new Vector3(waypoints[i].x + vertOffSet, 0, waypoints[i].y - vertOffSet);
+        for(int i = 0; i < roadTiles.Count; i++) {
+
+            verts[index]    = new Vector3(roadTiles[i].x - vertOffSet, 0, roadTiles[i].y + vertOffSet);
+            verts[index+1]  = new Vector3(roadTiles[i].x - vertOffSet, 0, roadTiles[i].y - vertOffSet);
+            verts[index+2]  = new Vector3(roadTiles[i].x + vertOffSet, 0, roadTiles[i].y + vertOffSet);
+            verts[index+3]  = new Vector3(roadTiles[i].x + vertOffSet, 0, roadTiles[i].y - vertOffSet);
             //uvs[index] = uvs[index + 1] = uvs[index + 2] = uvs[index + 3] = new Vector2((float)waypoints[i].x, waypoints[i].y);
 
             tris[t] = index;
@@ -156,7 +139,36 @@ public class RoadMeshScript : MonoBehaviour {
             index += 4;
             t += 6;
         }
+    }
 
-        return verts;
+    void VisualizeRoadWaypoints() {
+        for (int i = 0; i < roadTiles.Count - 1; i++) {
+            Debug.DrawLine(new Vector3(roadTiles[i].x - .25f, 1, roadTiles[i].y - .25f), 
+                new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
+            Debug.DrawLine(new Vector3(roadTiles[i].x + .25f, 1, roadTiles[i].y + .25f), 
+                new Vector3(roadTiles[i + 1].x, 1, roadTiles[i + 1].y), Color.yellow, 60);
+        }
+    }
+
+    void VisualizeRoadVerts(Vector3[] verts) {
+        float visualOffset = 0.1f;
+
+        for (int i = 0; i < verts.Length; i++) {
+            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset),
+                new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z + visualOffset),
+                new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x + visualOffset, 1, verts[i].z - visualOffset),
+                new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset), Color.red, 60);
+            Debug.DrawLine(new Vector3(verts[i].x - visualOffset, 1, verts[i].z - visualOffset),
+                new Vector3(verts[i].x - visualOffset, 1, verts[i].z + visualOffset), Color.red, 60);
+        }
+    }
+
+    // Update is called once per frame
+    void Update() {
+        if (regenerateMesh) {
+            GenerateWaypointsAndMesh();
+        }
     }
 }

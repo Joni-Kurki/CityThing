@@ -18,4 +18,19 @@ public class Enums  {
             church = 4,
         }
     }
+
+    public class People {
+        public enum Relationship {
+            single = 0,
+            InRelationShip = 1,
+        }
+        public enum Sex {
+            male = 0,
+            female = 1,
+        }
+        public enum Age {
+            kid = 0,
+            adult = 1,
+        }
+    }
 }
