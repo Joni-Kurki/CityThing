@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 public class Enums  {
 
+    public enum RadialPulseEffectType {
+        newJob = 0,
+    }
+
 	public enum LivingHouseType {
         single = 0,
         couple = 1,

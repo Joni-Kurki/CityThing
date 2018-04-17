@@ -71,37 +71,40 @@ public class LivingHouseControllerScript : MonoBehaviour {
                 // TODO
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Female.UNEMPLOYED_INRELATIONSHIP]);
                 goList[0].name = "People_F_INRela";
+                goList[0].tag = Constants.People.Tags.ADULT_FEMALE;
                 // TODO
                 pcs = goList[1].GetComponent<PeopleControllerScript>();
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Male.UNEMPLOYED_INRELATIONSHIP]);
                 goList[1].name = "People_M_INRela";
+                goList[1].tag = Constants.People.Tags.ADULT_MALE;
                 break;
         case Enums.LivingHouseType.single:
                 // TODO
-                var rng = Random.Range(0, 1);
+                var rng = Random.Range(0, 2);
                 pcs.SetPeopleSO(rng == 0 ? soOptions[Constants.People.DataSOIndecies.Female.UNEMPLOYED_SINGLE] : soOptions[Constants.People.DataSOIndecies.Male.UNEMPLOYED_SINGLE]);
                 goList[0].name = "People_Single";
+                goList[0].tag = rng == 0 ? Constants.People.Tags.ADULT_FEMALE : Constants.People.Tags.ADULT_MALE;
             break;
         case Enums.LivingHouseType.family:
                 // TODO
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Female.UNEMPLOYED_INRELATIONSHIP]);
                 goList[0].name = "People_F_INRela";
-
+                goList[0].tag = Constants.People.Tags.ADULT_FEMALE;
                 // TODO
                 pcs = goList[1].GetComponent<PeopleControllerScript>();
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Male.UNEMPLOYED_INRELATIONSHIP]);
                 goList[1].name = "People_M_INRela";
-
+                goList[1].tag = Constants.People.Tags.ADULT_MALE;
                 // TODO
                 pcs = goList[2].GetComponent<PeopleControllerScript>();
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Kid.KID]);
                 goList[2].name = "People_KID";
-
+                goList[2].tag = Constants.People.Tags.KID;
                 // TODO
                 pcs = goList[3].GetComponent<PeopleControllerScript>();
                 pcs.SetPeopleSO(soOptions[Constants.People.DataSOIndecies.Kid.KID]);
                 goList[3].name = "People_KID";
-                
+                goList[3].tag = Constants.People.Tags.KID;
                 break;
         }
     }

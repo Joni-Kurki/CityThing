@@ -8,6 +8,12 @@ public class Constants  {
     }
 
     public class People {
+        public class Tags {
+            public const string ADULT_FEMALE = "People_Adult_Female";
+            public const string ADULT_MALE = "People_Adult_Male";
+            public const string KID = "People_Kid";
+        }
+
         public class DataSOIndecies {
             public class Kid {
                 public const int KID = 8;
