@@ -5,6 +5,8 @@ public class Enums  {
 
     public enum RadialPulseEffectType {
         newJob = 0,
+        explosion = 1,
+        lookingForSomethingToDo = 2,
     }
 
 	public enum LivingHouseType {

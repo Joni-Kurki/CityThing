@@ -25,7 +25,12 @@ public class LivingHouseControllerScript : MonoBehaviour {
 
     public PeopleSO[] soOptions;
 
+    public List<GameObject> peopleList;
+
+    public Material highLightMaterial;
+
     public void Init(LivingHouseSO houseSO) {
+        peopleList = new List<GameObject>();
         this.houseSO = houseSO;
 
         adults = houseSO._adults;
@@ -62,6 +67,12 @@ public class LivingHouseControllerScript : MonoBehaviour {
             goList.Add(go);
         }
         SetPeopleSO(goList);
+
+        peopleList = goList;
+    }
+
+    public List<GameObject> GetPeople() {
+        return peopleList;
     }
 
     void SetPeopleSO(List<GameObject> goList) {
@@ -109,6 +120,14 @@ public class LivingHouseControllerScript : MonoBehaviour {
         }
     }
 
+    void CheckIfSomePeopleHasJob() {
+        foreach(GameObject go in peopleList) {
+            if (go.GetComponent<PeopleControllerScript>()._hasJob) {
+                GetComponent<MeshRenderer>().material = highLightMaterial;
+            }
+        }
+    }
+
     // Use this for initialization
     void Start () {
 		
@@ -116,7 +135,7 @@ public class LivingHouseControllerScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		
+        CheckIfSomePeopleHasJob();
 	}
 
     public void SetElectricity(bool value) {

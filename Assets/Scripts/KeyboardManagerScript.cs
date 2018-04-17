@@ -7,14 +7,22 @@ public class KeyboardManagerScript : MonoBehaviour {
     public GameObject PowerCreatorPrefab;
     GameObject powerCreatorGo;
     bool powerCreatorSpawned = false;
-
+    CityStatsTrackerScript stats;
+    bool initDone = false;
+    public GameObject radialPulsePrefab;
     // Use this for initialization
     void Start() {
-
+        
     }
 
     // Update is called once per frame
     void Update() {
+        if (!initDone) {
+            
+            if (stats)
+                initDone = true;
+        }
+
         // POWER STUFF
         if (powerCreatorGo != null && powerCreatorGo.GetComponent<PowerLineScript>().startSet && powerCreatorGo.GetComponent<PowerLineScript>().endSet && Input.GetMouseButtonDown(0)) {
             powerCreatorGo.GetComponent<PowerLineScript>().SpawnPoles();
@@ -41,6 +49,8 @@ public class KeyboardManagerScript : MonoBehaviour {
             }
         }
 
+
+
         if (Input.GetKeyDown(KeyCode.F2)){
             var road = GameObject.FindGameObjectWithTag("Road_Progen").GetComponent<RoadMeshScript>();
             Vector2[] points = new Vector2[6];
@@ -54,6 +64,16 @@ public class KeyboardManagerScript : MonoBehaviour {
 
 
             road.SetWayPoints(points);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F4)) {
+            var go = Instantiate(radialPulsePrefab, new Vector3(Random.Range(-5, 6), 0, Random.Range(-5, 6)), radialPulsePrefab.transform.rotation, transform.parent);
+            go.GetComponent<RadialPulseScript>().SetEffect(Enums.RadialPulseEffectType.newJob, 5, 0.3f, 20);
+        }
+
+        if (Input.GetKeyDown(KeyCode.F5)) {
+            stats = GameObject.FindWithTag("StatsTracker").GetComponent<CityStatsTrackerScript>();
+            stats.ReCalculateStats();
         }
     }
 

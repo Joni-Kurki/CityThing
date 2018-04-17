@@ -3,6 +3,12 @@ using System.Collections.Generic;
 
 public class Constants  {
 
+    public class Layers {
+        public const int RADIAL_PULSE = 8;
+        public const int LIVING_HOUSE = 9;
+        public const int PEOPLE = 10;
+    }
+
 	public class LivingHouse {
         public const int NUMBER_OF_LIVING_HOUSE_SO = 3;
     }

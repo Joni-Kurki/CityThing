@@ -17,6 +17,8 @@ public class CityStatsTrackerScript : MonoBehaviour {
     [SerializeField]
     int numberOfUnemployed;
     [SerializeField]
+    int numberOfEmployed;
+    [SerializeField]
     float unemployementRate;
     [SerializeField]
     int numberOfHouses;
@@ -63,7 +65,10 @@ public class CityStatsTrackerScript : MonoBehaviour {
             foreach (GameObject go in adultFemaleGos) {
                 numberOfUnemployed = go.GetComponent<PeopleControllerScript>()._hasJob == false ? numberOfUnemployed += 1 : numberOfUnemployed;
             }
-            unemployementRate = (float)(numberOfUnemployed / (numberOfPeopleWhoCanWork) * 100);
+
+            numberOfEmployed = numberOfPeopleWhoCanWork - numberOfUnemployed;
+
+            unemployementRate = (((float)numberOfUnemployed / (float)numberOfPeopleWhoCanWork) * (float)100);
 
             // Living house stuff
             numberOfHouses = GetNumberOfWithTag("LivingHouse").Length;
