@@ -33,6 +33,10 @@ public class PeopleControllerScript : MonoBehaviour {
         _sex = peopleSO._sex;
         _relationship = peopleSO._relationship;
         _age = peopleSO._age;
+        _materialToUse = peopleSO._materialToUse;
+
+        MeshRenderer mRenderer = GetComponent<MeshRenderer>();
+        mRenderer.material = peopleSO._materialToUse;
     }
 
     public void SetBusy(bool value) {

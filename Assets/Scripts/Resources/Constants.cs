@@ -9,6 +9,9 @@ public class Constants  {
 
     public class People {
         public class DataSOIndecies {
+            public class Kid {
+                public const int KID = 8;
+            }
             public class Female {
                 public const int EMPLOYED_INRELATIONSHIP = 0;
                 public const int EMPLOYED_SINGLE = 1;
